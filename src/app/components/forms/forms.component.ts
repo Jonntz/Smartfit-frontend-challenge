@@ -29,19 +29,18 @@ export class FormsComponent implements OnInit {
       showClosed: true
     });
     this.unitService.getAllUnits().subscribe(data => {
-      this.results = data.locations as unknown as Location[];
-      this.results = this.results.filter(location => location.schedules !== undefined);
+      this.results = data;
+      this.results = this.results.filter(locations => locations.schedules !== undefined);
       
-      this.filteredResults = data.locations as unknown as Location[];
-      this.filteredResults = this.filteredResults.filter(location => location.schedules !== undefined);
+      this.filteredResults = data;
+      this.filteredResults = this.filteredResults.filter(locations => locations.schedules !== undefined);
     });
   }
 
-  
-
   onSubmit(): void {
-    let {showClosed, hour} = this.formGroup.value
-    this.filteredResults = this.filterUnitsService.filter(this.results, showClosed, hour)
+    let {showClosed, hour} = this.formGroup.value;
+    this.filteredResults = this.filterUnitsService.filter(this.results, showClosed, hour);
+    this.unitService.setFilteredUnits(this.filteredResults);
   }
 
   clear(): void {
