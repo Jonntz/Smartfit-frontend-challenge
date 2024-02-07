@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { GetUnitsService } from '../../services/get-units.service';
 import { Location } from '../../types/location.interface';
+import { FilterUnitsService } from '../../services/filter-units.service';
 
 
 @Component({
@@ -16,26 +17,31 @@ export class FormsComponent implements OnInit {
   filteredResults: Location[] = [];
   formGroup!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private unitService: GetUnitsService) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private unitService: GetUnitsService, 
+    private filterUnitsService: FilterUnitsService
+  ) { }
 
   ngOnInit(): void {
-
     this.formGroup = this.formBuilder.group({
       hour: '',
       showClosed: true
     });
     this.unitService.getAllUnits().subscribe(data => {
       this.results = data.locations as unknown as Location[];
+      this.results = this.results.filter(location => location.schedules !== undefined);
+      
       this.filteredResults = data.locations as unknown as Location[];
+      this.filteredResults = this.filteredResults.filter(location => location.schedules !== undefined);
     });
   }
 
+  
+
   onSubmit(): void {
-    if (!this.formGroup.value.showClosed) {
-      this.filteredResults = this.results.filter(location => location.opened === true);
-    } else {
-      this.filteredResults = this.results;
-    }
+    let {showClosed, hour} = this.formGroup.value
+    this.filteredResults = this.filterUnitsService.filter(this.results, showClosed, hour)
   }
 
   clear(): void {
